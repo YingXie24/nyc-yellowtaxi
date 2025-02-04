@@ -1,10 +1,18 @@
 import os
 import requests
+import boto3
 from bs4 import BeautifulSoup
+from datetime import date
 
+# Webscraping configurations
 URL = "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page"
-download_folder = "yellow_taxi_parquet_files"
-os.makedirs(download_folder, exist_ok=True)
+
+# AWS S3 configurations
+s3_bucket = "my-nyc-yellowtaxi"
+s3_folder = date.today()
+
+# Initialise S3 client
+s3_client = boto3.client("s3")
 
 
 def get_parquet_links():
@@ -32,17 +40,23 @@ def get_parquet_links():
     return links
 
 
-def download_file(file_url):
-    """Download a file from webpage and save the file locally.
-        The filename is parsed from the last part of the file url."""
+def upload_file_to_s3(file_url):
+    """Download a file from webpage and directly upload the file to S3."""
 
     # Parse filename from file url.
     filename = file_url.rsplit("/")[-1]
-    full_path = os.path.join(download_folder, filename)
+    
+    # Download file
+    file_response = requests.get(file_url, stream=True)
 
-    # Download file using wget. 
-    os.system(f"wget {file_url} -O {full_path}")
-    print(f"Downloaded {filename} in the {download_folder} folder.")
+    # Upload to S3 bucket. 
+    if file_response.status_code == 200:
+        s3_key = f"{s3_folder}/{filename}"
+        s3_client.upload_fileobj(file_response.raw, s3_bucket, s3_key)
+        print(f"Uploaded!")
+    
+    else:
+        print("Failed!")
 
 
 # Main execution
@@ -53,4 +67,4 @@ if __name__ == "__main__":
 
     # Download the parquet files from the links.
     for parquet_link in parquet_links:
-        download_file(parquet_link)
+        upload_file_to_s3(parquet_link)
