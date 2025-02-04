@@ -1,4 +1,3 @@
-import os
 import requests
 import boto3
 from bs4 import BeautifulSoup
@@ -41,28 +40,27 @@ def get_parquet_links():
 
 
 def upload_file_to_s3(file_url):
-    """Download a file from webpage and directly upload the file to S3."""
+    """Retrieve content from a URL and directly upload the file to S3."""
 
     # Parse filename from file url.
     filename = file_url.rsplit("/")[-1]
-    
-    # Download file
+
+    # Retrieve content from a URL
     file_response = requests.get(file_url, stream=True)
 
-    # Upload to S3 bucket. 
+    # Upload response to S3 bucket.
     if file_response.status_code == 200:
         s3_key = f"{s3_folder}/{filename}"
         s3_client.upload_fileobj(file_response.raw, s3_bucket, s3_key)
-        print(f"Uploaded!")
-    
+        print(f"Uploaded {s3_key} to S3!")
+
     else:
-        print("Failed!")
+        print("Uploading to S3 has failed!")
 
 
 # Main execution
 if __name__ == "__main__":
-
-    # Extract all parquet file links. 
+    # Extract all parquet file links.
     parquet_links = get_parquet_links()
 
     # Download the parquet files from the links.
