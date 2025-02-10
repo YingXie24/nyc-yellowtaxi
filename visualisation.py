@@ -9,8 +9,20 @@ import numpy as np
 
 
 def get_secret(secret_name, region_name="us-east-1"):
-    """Fetch credentials from AWS Secrets Manager."""
-    session = boto3.session.Session()
+    """Fetch environment variable for AWS user from Streamlit. Then,
+    fetch Snowflake credentials from AWS Secrets Manager."""
+
+    aws_credentials = st.secrets["aws"]
+    aws_access_key_id = aws_credentials["aws_access_key_id"]
+    aws_secret_access_key = aws_credentials["aws_secret_access_key"]
+    aws_region = aws_credentials["aws_region"]
+
+    session = boto3.session.Session(
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        region_name=aws_region,
+    )
+
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
     try:
