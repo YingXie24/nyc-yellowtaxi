@@ -1,14 +1,10 @@
 import requests
-import boto3
 from bs4 import BeautifulSoup
+from utils import connect_to_s3
+from config import S3_BUCKET, S3_PREFIX
 
 # Webscraping configurations
 URL = "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page"
-
-# AWS S3 configurations
-s3_client = boto3.client("s3")
-s3_bucket = "my-nyc-yellowtaxi"
-s3_prefix = ""
 
 
 def get_url():
@@ -35,31 +31,37 @@ def get_url():
     return urls
 
 
-def list_s3_files(s3_bucket):
+def list_s3_files():
     """List existing files in the S3 bucket to avoid uploading duplicates."""
+
+    # Connect to S3.
+    s3_client = connect_to_s3()
+
+    # List files in s3 bucket.
     obj_list = []
-
-    response = s3_client.list_objects_v2(Bucket=s3_bucket, Prefix=s3_prefix)
-
+    response = s3_client.list_objects_v2(Bucket=S3_BUCKET, Prefix=S3_PREFIX)
     for obj in response.get("Contents", []):
         obj_list.append(obj["Key"])
 
     return obj_list
 
 
-def upload_file_to_s3(file_url, s3_bucket):
+def upload_file_to_s3(file_url):
     """Retrieve content from a URL and directly upload the file to S3."""
 
     # Parse filename from file url.
     filename = file_url.rsplit("/")[-1]
 
-    # Retrieve content from a URL
+    # Retrieve content from a URL.
     file_response = requests.get(file_url, stream=True)
+
+    # Connect to S3.
+    s3_client = connect_to_s3()
 
     # Upload response to S3 bucket.
     if file_response.status_code == 200:
-        s3_key = f"{s3_prefix}{filename}"
-        s3_client.put_object(Bucket=s3_bucket, Key=s3_key, Body=file_response.content)
+        s3_key = f"{S3_PREFIX}{filename}"
+        s3_client.put_object(Bucket=S3_BUCKET, Key=s3_key, Body=file_response.content)
         print(f"Uploaded {s3_key} to S3!")
 
     else:
@@ -68,11 +70,10 @@ def upload_file_to_s3(file_url, s3_bucket):
 
 # Main execution
 if __name__ == "__main__":
-
     # Get current S3 files.
-    existing_s3_files = list_s3_files(s3_bucket)
+    existing_s3_files = list_s3_files()
 
-    # Get all URLs available on the website.
+    # Get all scraped URLs.
     urls = get_url()
 
     # Compare S3 and scraped files and identify new files.
@@ -82,8 +83,10 @@ if __name__ == "__main__":
             if url.split("/")[-1] not in existing_s3_files:
                 new_urls.append(url)
 
-    # Download the parquet files from the links.
-    for new_url in new_urls:
-        upload_file_to_s3(new_url, s3_bucket)
+    # Download new files.
+    if not new_urls:
+        print("There are no new files to be scraped.")
 
-
+    else:
+        for new_url in new_urls:
+            upload_file_to_s3(new_url)
