@@ -1,0 +1,8 @@
+# S3 and Snowflake configurations
+S3_BUCKET = "my-nyc-yellowtaxi"
+S3_PREFIX = ""
+
+SNOWFLAKE_WAREHOUSE = 'COMPUTE_WH'
+SNOWFLAKE_DATABASE = "NYC_YELLOWTAXI"
+SNOWFLAKE_SCHEMA = "RAW"
+SNOWFLAKE_TABLE = "taxi_trips"
