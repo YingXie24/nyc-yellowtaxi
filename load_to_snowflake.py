@@ -13,11 +13,9 @@ snowflake_conn = connect_to_snowflake(snowflake_credentials)
 
 
 def load_file_to_Snowflake(conn):
-    """Load new files from S3 to Snowflake."""
-
-    if conn is None or conn.is_closed():
-        print("Error: Snowflake connection is closed.")
-        return
+    """Load new files from S3 to Snowflake.
+    Snowflake COPY has inbuilt feature to check whether an S3 file has already
+    been loaded to the table, therefore file-by-file comparison is not needed."""
 
     with conn.cursor() as cur:
         cur.execute(f"USE WAREHOUSE {SNOWFLAKE_WAREHOUSE}")
@@ -46,4 +44,5 @@ def load_file_to_Snowflake(conn):
 
 
 if __name__ == "__main__":
+    # Load new files in S3 to Snowflake.
     load_file_to_Snowflake(snowflake_conn)
