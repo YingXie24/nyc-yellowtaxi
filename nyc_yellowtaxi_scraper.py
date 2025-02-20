@@ -1,10 +1,21 @@
 import requests
 from bs4 import BeautifulSoup
+import logging
+
 from utils import connect_to_s3
-from config import S3_BUCKET, S3_PREFIX
+from config import S3_BUCKET, S3_PREFIX, LOG_FILE
+
 
 # Webscraping configurations
 URL = "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page"
+
+# Logging configurations
+logfile_path = LOG_FILE
+logging.basicConfig(
+    filename=logfile_path,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 
 def get_url():
@@ -83,10 +94,11 @@ if __name__ == "__main__":
             if url.split("/")[-1] not in existing_s3_files:
                 new_urls.append(url)
 
-    # Download new files.
+    # Upload new files to S3.
     if not new_urls:
-        print("There are no new files to be scraped.")
+        logging.info("There are no new files to be scraped.")
 
     else:
         for new_url in new_urls:
             upload_file_to_s3(new_url)
+            logging.info(f"New file uploaded to S3: {new_url}")

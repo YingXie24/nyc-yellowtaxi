@@ -1,9 +1,20 @@
-from utils import connect_to_snowflake
+import logging
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.io as pio
 import numpy as np
+
+from utils import connect_to_snowflake
+from config import LOG_FILE
+
+# Logging configurations.
+logfile_path = LOG_FILE
+logging.basicConfig(
+    filename=logfile_path,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 
 def get_streamlit_secret(secret_name="snowflake"):
@@ -30,10 +41,8 @@ def execute_query(conn, query):
     return df
 
 
-
 # Main execution
 if __name__ == "__main__":
-
     # Access Snowflake credentials stored in Streamlit Secrets.
     snowflake_credentials = get_streamlit_secret()
 
@@ -184,3 +193,6 @@ if __name__ == "__main__":
     )
 
     st.plotly_chart(fig)
+
+    # Logging message.
+    logging.info("Streamlit visualisation succesfully updated.\n")

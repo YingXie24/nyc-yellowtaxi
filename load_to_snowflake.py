@@ -1,9 +1,19 @@
+import logging
 from utils import get_AWS_secret, connect_to_snowflake
 from config import (
     SNOWFLAKE_WAREHOUSE,
     SNOWFLAKE_DATABASE,
     SNOWFLAKE_SCHEMA,
     SNOWFLAKE_TABLE,
+    LOG_FILE,
+)
+
+# Logging configurations.
+logfile_path = LOG_FILE
+logging.basicConfig(
+    filename=logfile_path,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 
@@ -46,3 +56,7 @@ def load_file_to_Snowflake(conn):
 if __name__ == "__main__":
     # Load new files in S3 to Snowflake.
     load_file_to_Snowflake(snowflake_conn)
+
+    logging.info(
+        "The uploading of S3 files to Snowflake has been completed successfully."
+    )
