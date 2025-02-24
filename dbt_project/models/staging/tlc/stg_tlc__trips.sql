@@ -1,6 +1,6 @@
 WITH source AS (
     SELECT *
-    FROM NYC_YELLOWTAXI.RAW.TAXI_TRIPS
+    FROM {{ source('nyc_yellowtaxi', 'taxi_trips')}}
 ),
 renamed AS (
     SELECT --ids
