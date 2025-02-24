@@ -4,9 +4,7 @@ WITH source AS (
 ),
 renamed AS (
     SELECT --ids
-        { { dbt_utils.generate_surrogate_key(
-            ['vendorid', 'pulocationid', 'dolocationid', 'tpep_pickup_datetime', 'tpep_dropoff_datetime']
-        ) } } AS trip_id,
+        {{dbt_utils.generate_surrogate_key(['vendorid', 'pulocationid', 'dolocationid', 'tpep_pickup_datetime', 'tpep_dropoff_datetime'])}} AS trip_id,
         vendorid AS vendor_id,
         pulocationid AS pickup_location_id,
         dolocationid AS dropoff_location_id,
