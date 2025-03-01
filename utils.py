@@ -8,6 +8,18 @@ def connect_to_s3():
     s3_client = boto3.client("s3")
     return s3_client
 
+def upload_to_s3(bucket_name, s3_key, data):
+    """Upload data to S3 bucket."""
+
+    s3_client = connect_to_s3()
+
+    try:
+        s3_client.put_object(Bucket=bucket_name, Key=s3_key, Body=data)
+        print(f"Uploaded {s3_key} to S3!")
+
+    except Exception as e:
+        print(f"Error uploading file to S3: {e}")
+
 
 def get_AWS_secret(secret_name, region_name="us-east-1"):
     """Fetch credentials from AWS Secrets Manager."""
@@ -41,3 +53,6 @@ def connect_to_snowflake(snowflake_credentials):
     except Exception as e:
         print(f"Error connecting to Snowflake: {e}")
         return None
+    
+
+

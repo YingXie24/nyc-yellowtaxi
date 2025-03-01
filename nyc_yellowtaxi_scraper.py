@@ -2,9 +2,12 @@ import requests
 from bs4 import BeautifulSoup
 import logging
 
-from utils import connect_to_s3
-from config import S3_BUCKET, S3_PREFIX, LOG_FILE
+from utils import connect_to_s3, upload_to_s3
+from config import LOG_FILE
 
+# S3 configurations
+S3_BUCKET = "my-nyc-yellowtaxi"
+S3_PREFIX = ""
 
 # Webscraping configurations
 URL = "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page"
@@ -43,7 +46,7 @@ def get_url():
 
 
 def list_s3_files():
-    """List existing files in the S3 bucket to avoid uploading duplicates."""
+    """List existing files in the S3 bucket to avoid scraping unnecessarily."""
 
     # Connect to S3.
     s3_client = connect_to_s3()
@@ -57,26 +60,17 @@ def list_s3_files():
     return obj_list
 
 
-def upload_file_to_s3(file_url):
-    """Retrieve content from a URL and directly upload the file to S3."""
+def scrape_url(url):
+    """Retrieve contents from a URL using GET requests."""
 
-    # Parse filename from file url.
-    filename = file_url.rsplit("/")[-1]
+    response = requests.get(url, stream=True)
 
-    # Retrieve content from a URL.
-    file_response = requests.get(file_url, stream=True)
-
-    # Connect to S3.
-    s3_client = connect_to_s3()
-
-    # Upload response to S3 bucket.
-    if file_response.status_code == 200:
-        s3_key = f"{S3_PREFIX}{filename}"
-        s3_client.put_object(Bucket=S3_BUCKET, Key=s3_key, Body=file_response.content)
-        print(f"Uploaded {s3_key} to S3!")
+    if response.status_code == 200:
+        return response
 
     else:
-        print("Uploading to S3 has failed!")
+        print(f"Error fetching data. The status code is {response.status_code}")
+        return None
 
 
 # Main execution
@@ -100,5 +94,7 @@ if __name__ == "__main__":
 
     else:
         for new_url in new_urls:
-            upload_file_to_s3(new_url)
+            response = scrape_url(new_url)
+            s3_key = new_url.rsplit("/")[-1]
+            upload_to_s3(S3_BUCKET, s3_key, response.content)
             logging.info(f"New file uploaded to S3: {new_url}")
