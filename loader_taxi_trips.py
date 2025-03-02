@@ -4,9 +4,12 @@ from config import (
     SNOWFLAKE_WAREHOUSE,
     SNOWFLAKE_DATABASE,
     SNOWFLAKE_SCHEMA,
-    SNOWFLAKE_TABLE,
     LOG_FILE,
 )
+
+# Snowflake configurations.
+SNOWFLAKE_TABLE = "taxi_trips"
+
 
 # Logging configurations.
 logfile_path = LOG_FILE
