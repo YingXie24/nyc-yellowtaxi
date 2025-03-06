@@ -2,8 +2,11 @@ version: 2
 
 sources:
   - name: nyc_yellowtaxi
+    database: nyc_yellowtaxi
     schema: raw
     tables:
       - name: taxi_trips
+      - name: raw_historical_weather
+
 
       
