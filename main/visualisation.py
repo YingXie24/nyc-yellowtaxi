@@ -32,7 +32,7 @@ if __name__ == "__main__":
     conn = connect_to_snowflake(snowflake_credentials)
 
     # Run query and return results as pandas dataframe.
-    query = "SELECT * from nyc_yellowtaxi.raw.taxi_trips limit 5"
+    query = "SELECT * from nyc_yellowtaxi.dev.stg_tlc__trips where pickup_at between '2024-07-01' and '2024-07-31'"
     df = execute_query(conn, query)
 
     # Transformation of pandas dataframe.
