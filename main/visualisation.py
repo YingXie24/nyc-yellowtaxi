@@ -61,8 +61,8 @@ if __name__ == "__main__":
 
     # Sidebar filters
     st.sidebar.header("Filter Options")
-    min_selectable_date = "2024-06-01"
-    max_selectable_date = "2024-06-30"
+    min_selectable_date = "2024-06-02"
+    max_selectable_date = "2024-06-09"
     date_range = st.sidebar.date_input(
         label="Select Date Range",
         value=(min_selectable_date, max_selectable_date),
