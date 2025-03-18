@@ -6,7 +6,7 @@ I attempt to approach this project in incremental stages, with the aim of each s
 3. Advanced pipeline: This includes orchestration using Airflow. -- Future work
 
 
-To see the results of the simple data pipeline, head straight to Streamlit Community Cloud [here](https://yingxie24-nyc-yellow-taxi-visualisation-qwnwcf.streamlit.app/).
+To see the results of the simple data pipeline, head straight to Streamlit Community Cloud [here](https://nyc-yellowtaxi-yingxie24.streamlit.app/).
 
 Here's a print screen of visualisation on Streamlit:
 ![visualisation](https://github.com/user-attachments/assets/0daacf80-1766-4b1d-a01b-e6416dd823a4)
