@@ -11,7 +11,7 @@ END_DATE = "2024-06-30"
 S3_BUCKET_NAME = "meteo-weather"
 
 
-def get_weather_data(start_date, end_date):
+def get_weather_data(start_date: str, end_date: str):
     """Fetch data from Meteo API"""
     url = "https://meteostat.p.rapidapi.com/point/hourly"
 

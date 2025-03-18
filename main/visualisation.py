@@ -5,16 +5,7 @@ import plotly.express as px
 import plotly.io as pio
 import numpy as np
 
-from utils import connect_to_snowflake
-from config import LOG_FILE
-
-# Logging configurations.
-logfile_path = LOG_FILE
-logging.basicConfig(
-    filename=logfile_path,
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+from utils import connect_to_snowflake, execute_query
 
 
 def get_streamlit_secret(secret_name="snowflake"):
@@ -30,15 +21,6 @@ def get_streamlit_secret(secret_name="snowflake"):
         "database": credentials["database"],
         "schema": credentials["schema"],
     }
-
-
-def execute_query(conn, query):
-    """Execute SQL query. The results are returned as a Pandas dataframe."""
-    with conn:
-        with conn.cursor() as cur:
-            df = cur.execute(query).fetch_pandas_all()
-
-    return df
 
 
 # Main execution
@@ -195,4 +177,4 @@ if __name__ == "__main__":
     st.plotly_chart(fig)
 
     # Logging message.
-    logging.info("Streamlit visualisation succesfully updated.\n")
+    print("Streamlit visualisation succesfully updated.\n")
