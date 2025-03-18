@@ -1,4 +1,4 @@
-import logging
+
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -32,21 +32,23 @@ if __name__ == "__main__":
     conn = connect_to_snowflake(snowflake_credentials)
 
     # Run query and return results as pandas dataframe.
-    query = "SELECT * from nyc_yellowtaxi.dev.stg_tlc__trips where pickup_at between '2024-07-01' and '2024-07-31'"
+    query = "SELECT * from nyc_yellowtaxi.dev.stg_tlc__trips where pickup_at between '2024-06-01' and '2024-07-01'"
     df = execute_query(conn, query)
 
     # Transformation of pandas dataframe.
-    df = df.sample(frac=0.1)
+    # df = df.sample(frac=0.1)
 
-    # Convert PICKUP_DATETIME to datetime object
-    df["TPEP_PICKUP_DATETIME"] = df["TPEP_PICKUP_DATETIME"].astype(int)
-    df["TPEP_PICKUP_DATETIME"] = pd.to_datetime(df["TPEP_PICKUP_DATETIME"], unit="us")
+    # # Convert PICKUP_DATETIME to datetime object
+    # df["TPEP_PICKUP_DATETIME"] = df["TPEP_PICKUP_DATETIME"].astype(int)
+    # df["TPEP_PICKUP_DATETIME"] = pd.to_datetime(df["TPEP_PICKUP_DATETIME"], unit="us")
 
     # Create a new column for the date (just the date part, no time)
-    df["pickup_date"] = df["TPEP_PICKUP_DATETIME"].dt.date
+    df["pickup_date"] = df["PICKUP_AT"].dt.date
+
+    df["pickup_hour"] = df["PICKUP_AT"].dt.hour
 
     # Create a column for the day of the week (Sun, Mon, Tue, etc.)
-    df["day_of_week"] = df["TPEP_PICKUP_DATETIME"].dt.strftime("%a")
+    df["day_of_week"] = df["PICKUP_AT"].dt.strftime("%a")
 
     # Classify trips into airport and non-airport based on 'airport_fee'
     df["pickup_from_airport_flag"] = np.where(df["AIRPORT_FEE"] > 0, True, False)
@@ -54,6 +56,8 @@ if __name__ == "__main__":
     # Plot visualisation using Plotly and Streamlit.
     pio.templates.default = "seaborn"
     st.title("NYC Taxi Trip Analysis 🚖")
+
+    # %%
 
     # Sidebar filters
     st.sidebar.header("Filter Options")
@@ -69,8 +73,8 @@ if __name__ == "__main__":
     min_selected_date, max_selected_date = date_range
 
     df_filtered = df[
-        (df["TPEP_PICKUP_DATETIME"].dt.date >= min_selected_date)
-        & (df["TPEP_PICKUP_DATETIME"].dt.date <= max_selected_date)
+        (df["pickup_date"] >= min_selected_date)
+        & (df["pickup_date"] <= max_selected_date)
     ]
 
     # 🚖 Line chart: Count number of trips each day
@@ -90,7 +94,7 @@ if __name__ == "__main__":
         daily_trip_counts,
         x="pickup_date",
         y="trip_count",
-        title="Passengers choose to stay at home on Sundays.",
+        title="Passengers don't take taxis as much at the start of the week.",
         labels={
             "pickup_date": "Date",
             "trip_count": "Number of Trips",
@@ -105,16 +109,16 @@ if __name__ == "__main__":
     # 🚖 Histogram: Hour breakdown
     st.subheader("What shift is best for taxi drivers? 🎯")
 
-    df_filtered["DATE"] = df_filtered["TPEP_PICKUP_DATETIME"].dt.date
-    df_filtered["HOUR"] = df_filtered["TPEP_PICKUP_DATETIME"].dt.hour
+    # df_filtered["DATE"] = df_filtered["TPEP_PICKUP_DATETIME"].dt.date
+   
 
     fig = px.histogram(
         df_filtered,
-        x="HOUR",
-        color="DATE",
+        x="pickup_hour",
+        color="pickup_date",
         barmode="group",
         title="If you hate traffic, drive in the wee hours.",
-        labels={"HOUR": "Hour of the Day", "DATE": "Trip Date"},
+        labels={"pickup_hour": "Hour of the Day", "pickup_date": "Trip Date"},
         nbins=24,
     )
     st.plotly_chart(fig)
