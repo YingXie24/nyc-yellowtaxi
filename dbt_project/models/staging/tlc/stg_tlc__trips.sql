@@ -19,8 +19,8 @@ renamed AS (
             WHEN payment_type = 4 THEN 'dispute'
             WHEN payment_type = 5 THEN 'unknown'
             WHEN payment_type = 6 THEN 'voided trip'
-            WHEN payment_type IS NULL THEN NULL
-            ELSE 'error'
+            WHEN payment_type IS NULL THEN 'NULL'
+            ELSE 'other'
         END AS payment_type,
         --numerics
         passenger_count,
